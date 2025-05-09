@@ -19,6 +19,7 @@ project(
   pricer
   VERSION 0.0.1
   DESCRIPTION ""
+  HOMEPAGE_URL "https://github.com/pigottcd/pricer"
   LANGUAGES CXX C)
 
 include(cmake/PreventInSourceBuilds.cmake)
