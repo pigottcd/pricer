@@ -1,14 +1,19 @@
 include(GenerateExportHeader)
 
 
-add_library(sample_library sample_library.cpp)
+file(GLOB_RECURSE SAMPLE_LIBRARY_SOURCES CONFIGURE_DEPENDS
+  "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+)
+
+add_library(sample_library ${SAMPLE_LIBRARY_SOURCES})
 
 add_library(pricer::sample_library ALIAS sample_library)
 
 target_link_libraries(sample_library PRIVATE pricer_options pricer_warnings)
 
 target_include_directories(sample_library ${WARNING_GUARD} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-                                                                  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>)
+                                                                  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+                                                           PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>)
 
 target_compile_features(sample_library PUBLIC cxx_std_20)
 

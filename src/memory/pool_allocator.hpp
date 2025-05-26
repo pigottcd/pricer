@@ -63,22 +63,22 @@ private:
       if (index == BlockCount) { return nullptr; }
 
       setBlocksInUse(index, blocksNeeded);
-      return &data_[index * BlockSize];
+      return std::bit_cast<T*>(&data_[index * BlockSize]);
     }
 
     auto deallocate(T* p, std::size_t n) noexcept -> void
     {
-      const auto* bytePtr = reinterpret_cast<const std::byte*>(p);
-      const std::size_t offset = bytePtr - data_.data();
-      const std::size_t index = offset / BlockSize;
-      const std::size_t blocksNeeded = (n * sizeof(T) + BlockSize - 1) / BlockSize;
+      const auto* bytePtr = std::bit_cast<const std::byte*>(p);
+      const auto offset = static_cast<std::size_t>(bytePtr - data_.data());
+      const auto index = offset / BlockSize;
+      const auto blocksNeeded = (n * sizeof(T) + BlockSize - 1) / BlockSize;
       setBlocksFree(index, blocksNeeded);
     }
 
     // Finds n free contiguous blocks in the ledger and returns the first block's index or BlockCount on failure
     [[nodiscard]] auto findContiguousBlocks(std::size_t n) const noexcept -> std::size_t
     {
-      std::size_t contiguous = 0;
+      auto contiguous = std::size_t{ 0 };
       for (std::size_t i = 0; i < BlockCount; ++i) {
         if (!isBlockInUse(i)) {
           if (++contiguous == n) { return i - n + 1; }
@@ -92,7 +92,7 @@ private:
     // Marks n blocks in the ledger as "in-use" starting at 'index'
     auto setBlocksInUse(std::size_t index, std::size_t n) noexcept -> void
     {
-      for (std::size_t i = 0; i < n; ++i) {
+      for (auto i = std::size_t{ 0 }; i < n; ++i) {
         ledger_[(index + i) / 8] =
           static_cast<std::byte>(std::to_integer<unsigned char>(ledger_[(index + i) / 8]) | (1 << ((index + i) % 8)));
       }
@@ -130,7 +130,7 @@ public:
     return reinterpret_cast<T*>(ptr);
   }
 
-  auto deallocate(T* p, std::size_t n) noexcept -> void { getInstance().deallocate(reinterpret_cast<void*>(p), n); }
+  auto deallocate(T* p, std::size_t n) noexcept -> void { getInstance().deallocate(p, n); }
 };
 
 #endif

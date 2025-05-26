@@ -4,10 +4,7 @@ cmake_minimum_required(VERSION 3.21)
 # so that it works well with tools like CPM or other
 # manual dependency management
 
-# Only set the cxx_standard if it is not set by someone else
-if (NOT DEFINED CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 23)
-endif()
+set(CMAKE_CXX_STANDARD 23)
 
 # strongly encouraged to enable this globally to avoid conflicts between
 # -Wpedantic being enabled and -std=c++20 and -std=gnu++20 for example
@@ -56,6 +53,9 @@ add_subdirectory(configured_files)
 
 # Adding the src:
 add_subdirectory(src)
+
+# Add bindings
+add_subdirectory(bindings)
 
 # Don't even look at tests if we're not top level
 if(NOT PROJECT_IS_TOP_LEVEL)
