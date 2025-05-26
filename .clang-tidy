@@ -9,15 +9,22 @@ Checks: "*,
         -zircon-*,
         -readability-static-accessed-through-instance,
         -readability-avoid-const-params-in-decls,
+        -readability-identifier-length,
         -cppcoreguidelines-non-private-member-variables-in-classes,
+        -cppcoreguidelines-no-malloc,
+        -cppcoreguidelines-owning-memory,
         -misc-non-private-member-variables-in-classes,
         -misc-no-recursion,
         -misc-use-anonymous-namespace,
-        -misc-use-internal-linkage
+        -misc-use-internal-linkage,
+        -hicpp-no-malloc
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 FormatStyle:     none
+ExtraArgs:
+  - -std=c++20
+  - -stdlib=libc++
 
 CheckOptions:
   - key: readability-identifier-length.IgnoredVariableNames

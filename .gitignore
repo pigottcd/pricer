@@ -27,6 +27,7 @@ CMakeFiles/
 *~
 _ReSharper*
 *.log
+compile_commands.json
 
 # OS Generated Files
 .DS_Store

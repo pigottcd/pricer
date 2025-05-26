@@ -1,6 +1,3 @@
-include(GenerateExportHeader)
-
-
 add_library(pypricer MODULE bindings.cpp)
 
 add_library(pricer::pypyricer ALIAS pypricer)
