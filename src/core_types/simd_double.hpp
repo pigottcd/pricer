@@ -21,11 +21,8 @@ inline constexpr bool has_avx2 = true;
 inline constexpr bool has_avx2 = false;
 #endif
 
-#ifdef __SSE2__
 inline constexpr bool has_sse2 = true;
-#else
-inline constexpr bool has_sse2 = false;
-#endif
+
 
 
 constexpr auto simd_level() -> std::size_t

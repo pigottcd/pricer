@@ -17,6 +17,12 @@ target_include_directories(sample_library ${WARNING_GUARD} PUBLIC $<BUILD_INTERF
 
 target_compile_features(sample_library PUBLIC cxx_std_20)
 
+target_compile_options(sample_library
+    PUBLIC
+        $<$<CXX_COMPILER_ID:MSVC>:/arch:AVX2>
+        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-mavx2>
+)
+
 set_target_properties(
   sample_library
   PROPERTIES VERSION ${PROJECT_VERSION}

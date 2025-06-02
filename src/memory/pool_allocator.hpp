@@ -2,6 +2,7 @@
 #define POOL_ALLOCATOR_H
 
 #include <algorithm>
+#include <bit>
 #include <cstddef>
 #include <cstdlib>
 #include <new>
@@ -18,10 +19,17 @@ public:
   template<typename U>
   struct rebind
   {
-    using other = PoolAllocator<U, BlockSize, BlockCount, Alignment>;
+    // not expecting to use maps or other containers that have different alignment requirements
+    // but will provide a check for it.  If we hit this case, we will use the alignment of U
+    static constexpr std::size_t NewAlign =
+        (Alignment < alignof(U) ? alignof(U) : Alignment);
+    using other = PoolAllocator<U, BlockSize, BlockCount, NewAlign>;
   };
 
-  PoolAllocator() = default;
+  constexpr PoolAllocator() noexcept = default;
+
+  template<class U, std::size_t A>
+  constexpr PoolAllocator(const PoolAllocator<U, BlockSize, BlockCount, A>&) noexcept {}
 
 
 private:
@@ -30,7 +38,11 @@ private:
     Pool()
     {
       constexpr auto size = BlockSize * BlockCount;
+#if defined(_WIN32)
+      auto* data = static_cast<std::byte*>(_aligned_malloc(size, Alignment));
+#else
       auto* data = static_cast<std::byte*>(std::aligned_alloc(Alignment, size));
+#endif
       if (data == nullptr) { throw std::bad_alloc(); }
       data_ = std::span<std::byte>(data, size);
 
@@ -46,7 +58,11 @@ private:
 
     ~Pool()
     {
+#if defined(_WIN32)
+      _aligned_free(data_.data());
+#else
       std::free(data_.data());
+#endif
       std::free(ledger_.data());
     }
 
@@ -63,7 +79,7 @@ private:
       if (index == BlockCount) { return nullptr; }
 
       setBlocksInUse(index, blocksNeeded);
-      return std::bit_cast<T*>(&data_[index * BlockSize]);
+      return std::bit_cast<void*>(&data_[index * BlockSize]);
     }
 
     auto deallocate(T* p, std::size_t n) noexcept -> void
@@ -89,7 +105,6 @@ private:
       return BlockCount;
     }
 
-    // Marks n blocks in the ledger as "in-use" starting at 'index'
     auto setBlocksInUse(std::size_t index, std::size_t n) noexcept -> void
     {
       for (auto i = std::size_t{ 0 }; i < n; ++i) {
@@ -98,7 +113,6 @@ private:
       }
     }
 
-    // Marks n blocks in the ledger as "free" starting at 'index';
     auto setBlocksFree(std::size_t index, std::size_t n) noexcept -> void
     {
       for (std::size_t i = 0; i < n; ++i) {

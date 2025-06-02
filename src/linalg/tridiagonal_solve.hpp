@@ -1,3 +1,6 @@
+#ifndef TRIDIAGONAL_SOLVE_H
+#define TRIDIAGONAL_SOLVE_H
+
 #include <span>
 
 #include "core_types/dvec.hpp"
@@ -17,3 +20,5 @@ struct TridiagonalSystemView
 auto tridiagonalSolve(const TridiagonalSystemView& system) -> DVec;
 
 }// namespace pricer
+
+#endif
